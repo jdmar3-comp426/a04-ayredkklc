@@ -34,22 +34,27 @@ app.get("/app/users", (req, res) => {
 	const stmt = db.prepare("SELECT * FROM userinfo").all();
 	res.status(200).json(stmt);
 });
-
+app.get("/app/user/:id", (req, res) => {
+	const stmt = db.prepare("SELECT * FROM userinfo WHERE id = ?").get(req.params.id);
+	res.status(200).json(stmt);
+});
 // READ a single user (HTTP method GET) at endpoint /app/user/:id
 app.get("/app/user/:id", (req, res) => {	
-	const stmt = db.prepare("SELECT FROM userinfo WHERE id = ?");
-	const id = req.params.id;
-	const info  = stmt.get(id);
-	res.status(200).json(info);
+	const stmt = db.prepare("SELECT * FROM userinfo WHERE id = ?").get(req.params.id);
+	res.json(stmt);
+	res.status(200);
 });
-
 // UPDATE a single user (HTTP method PATCH) at endpoint /app/update/user/:id
 app.patch("/app/update/user/:id", (req, res) => {	
-	const id = req.params.id;
-	const stmt = db.prepare("UPDATE userinfo SET user = COALESCE(?,user), pass = COALESCE(?,pass) WHERE id = ?");
-	const info = stmt.run(req.body.user, md5(req.body.pass), id);
-	res.status(200).json({"message": info.changes+ " record updated: ID " + id + " (200)"});
-	res.status(200).json(info);
+	const stmt = db.prepare("UPDATE userinfo SET user = COALESCE(?,user), pass = COALESCE(?,pass) WHERE id = ?"
+	);
+	const info = stmt.run(req.body.user, md5(req.body.pass), req.params.id);
+	res.status(200).json({"message": info.changes+ " record updated: ID " +req.params.id + " (200)"});
+});
+app.get("/app/user/:id", (req, res) => {	
+	const stmt = db.prepare("SELECT * FROM userinfo WHERE id = ?").get(req.params.id);
+	res.json(stmt);
+	res.status(200);
 });
 // DELETE a single user (HTTP method DELETE) at endpoint /app/delete/user/:id
 app.delete("/app/delete/user/:id", (req, res) => {	
